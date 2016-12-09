@@ -3,6 +3,7 @@ package algorithm_test.datastructure_test;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * 普通(满)二叉树，键值可重复
@@ -34,6 +35,7 @@ class CommonBinaryTreeStructure {
 
 	// 实例区域
 
+	private Random directGenerator = new Random();
 	private List<Node> allNodes = new ArrayList<>(); // 节点列表
 
 	CommonBinaryTreeStructure() {
@@ -50,6 +52,33 @@ class CommonBinaryTreeStructure {
 			} else { // 成为右子树
 				parent = allNodes.get((allNodes.size() - 1) / 2 - 1);
 				parent.right = node;
+			}
+		}
+	}
+
+	void insertRandom(int key) {
+		Node node = new Node(key, null, null);
+		allNodes.add(node);
+		if (allNodes.size() > 1) {
+			Node childNotFillNode = allNodes.get(0);
+			// 随机方向找到可插入的节点
+			while (childNotFillNode.left != null && childNotFillNode.right != null) {
+				if (directGenerator.nextBoolean()) {
+					childNotFillNode = childNotFillNode.left;
+				} else {
+					childNotFillNode = childNotFillNode.right;
+				}
+			}
+			if (childNotFillNode.left == null && childNotFillNode.right == null) {
+				if (directGenerator.nextBoolean()) {
+					childNotFillNode.left = node;
+				} else {
+					childNotFillNode.right = node;
+				}
+			} else if (childNotFillNode.left == null) {
+				childNotFillNode.left = node;
+			} else {
+				childNotFillNode.right = node;
 			}
 		}
 	}
