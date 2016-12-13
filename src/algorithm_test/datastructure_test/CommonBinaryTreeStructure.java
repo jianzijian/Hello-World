@@ -177,9 +177,9 @@ class CommonBinaryTreeStructure {
 		if (node == null) {
 			return;
 		}
-		this.loopPreNodes(node.left, results);
+		this.loopMidNodes(node.left, results);
 		results.add(node);
-		this.loopPreNodes(node.right, results);
+		this.loopMidNodes(node.right, results);
 	}
 
 	List<Node> loopLas() { // 后序遍历
@@ -194,9 +194,127 @@ class CommonBinaryTreeStructure {
 		if (node == null) {
 			return;
 		}
-		this.loopPreNodes(node.left, results);
-		this.loopPreNodes(node.right, results);
+		this.loopLasNodes(node.left, results);
+		this.loopLasNodes(node.right, results);
 		results.add(node);
+	}
+
+	List<Node> loopPreNoTraversal() { // 前序遍历非递归算法
+		List<Node> results = new ArrayList<>();
+		if (allNodes.isEmpty()) {
+			return results;
+		}
+		LinkedList<Node> operandsList = new LinkedList<>();
+		Node curNode = allNodes.get(0);
+		while (true) {
+			results.add(curNode);
+			// 有左右子树，一次肯定遍历不完，节点有保存价值（用于寻找右子树）
+			if (curNode.left != null && curNode.right != null) {
+				operandsList.addFirst(curNode);
+				curNode = curNode.left;
+				continue;
+			}
+			if (curNode.left != null) {
+				curNode = curNode.left;
+				continue;
+			}
+			if (curNode.right != null) {
+				curNode = curNode.right;
+				continue;
+			}
+			// 节点重新出栈，其左子树肯定被遍历了，直接找右子树
+			if (!operandsList.isEmpty()) {
+				// 这里可以直接拿右子树是因为节点入栈的前提是：有左右子树
+				curNode = operandsList.removeFirst().right;
+				continue;
+			}
+			break;
+		}
+		return results;
+	}
+
+	List<Node> loopMidNoTraversal() { // 中序遍历非递归算法
+		List<Node> results = new ArrayList<>();
+		if (allNodes.isEmpty()) {
+			return results;
+		}
+		LinkedList<Node> operandsList = new LinkedList<>();
+		Node curNode = allNodes.get(0);
+		while (curNode != null || !operandsList.isEmpty()) {
+			if (curNode == null) {
+				Node parent = operandsList.removeFirst();
+				results.add(parent);
+				curNode = parent.right;
+				continue;
+			}
+			// 有左子树，一次肯定遍历不完，节点有保存价值（遍历自己，寻找右子树）
+			if (curNode.left != null) {
+				operandsList.addFirst(curNode);
+				curNode = curNode.left;
+				continue;
+			}
+			// 没有左子树，直接遍历自己
+			results.add(curNode);
+			if (curNode.right != null) {
+				curNode = curNode.right;
+				continue;
+			}
+			// 节点重新出栈，其左子树肯定被遍历了，遍历自己然后直接找右子树
+			if (!operandsList.isEmpty()) {
+				Node parent = operandsList.removeFirst();
+				results.add(parent);
+				curNode = parent.right;
+				continue;
+			}
+			break;
+		}
+		return results;
+	}
+
+	List<Node> loopLasNoTraversal() { // 后序遍历非递归算法
+		List<Node> results = new ArrayList<>();
+		if (allNodes.isEmpty()) {
+			return results;
+		}
+		LinkedList<Node> operandsList = new LinkedList<>();
+		Node curNode = allNodes.get(0);
+		while (true) {
+			// 先add父节点
+			if (curNode.left != null) { // 有左子树add一遍
+				operandsList.addFirst(curNode);
+			}
+			if (curNode.right != null) { // 有右子树再add一遍
+				operandsList.addFirst(curNode);
+			}
+			// 再决定往左往右
+			if (curNode.left != null) {
+				curNode = curNode.left;
+				continue;
+			}
+			if (curNode.right != null) {
+				curNode = curNode.right;
+				continue;
+			}
+			// 叶子节点
+			results.add(curNode);
+			Node nextNode = null;
+			while (!operandsList.isEmpty()) {
+				Node parent = operandsList.removeFirst();
+				if (!operandsList.isEmpty() && parent == operandsList.getFirst()) { // 本次应该遍历父节点的右子树
+					// 节点被add了两遍肯定有右子树
+					nextNode = parent.right;
+					break;
+				} else { // 左右子树都被遍历完了，遍历父节点
+					results.add(parent);
+				}
+			}
+			if (nextNode != null) {
+				curNode = nextNode;
+				continue;
+			}
+			break;
+		}
+		return results;
 	}
 
 }
