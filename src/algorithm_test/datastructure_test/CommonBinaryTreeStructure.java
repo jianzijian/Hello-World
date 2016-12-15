@@ -83,31 +83,94 @@ class CommonBinaryTreeStructure {
 		}
 	}
 
-	void delete(int key) { // 删除节点及其左右子树
-		if (allNodes.isEmpty()) {
-			return;
+	List<Node> delete(int key) {
+		List<Node> results = new ArrayList<>();
+		if (!allNodes.isEmpty()) {
+			this.deleteNodes(key, null, allNodes.get(0), results);
 		}
-		Node root = allNodes.get(0);
-		if (root.key == key) {
-			allNodes.clear();
-			return;
-		}
-		this.deleteNode(key, allNodes.get(0));
+		return results;
 	}
 
-	private void deleteNode(int key, Node node) {
-		if (node == null) { // 空树直接返回
+	void deleteNodes(int key, Node parent, Node child, List<Node> results) {
+		if (child.key == key) {
+			results.add(child);
+			if (child.left == null && child.right == null) { // 没有左右子树
+				this.deleteNoChild(parent, child);
+			} else if (child.left != null && child.right != null) { // 左右子树都有
+				this.deleteWithTwoChild(key, parent, child, results);
+			} else { // 只有左子树或者只有右子树
+				this.deleteWithOneChild(key, parent, child, results);
+			}
+			allNodes.remove(child);
+		} else {
+			if (child.left != null) {
+				this.deleteNodes(key, child, child.left, results);
+			}
+			if (child.right != null) {
+				this.deleteNodes(key, child, child.right, results);
+			}
+		}
+	}
+
+	private void deleteWithTwoChild(int key, Node parent, Node child, List<Node> results) { // 以二叉查找树的方法，左子树最右节点替代被删除节点
+		// 查找左子树的最右节点，并断开该节点
+		Node replaceNode = child.left;
+		while (replaceNode.right != null) {
+			Node tmpNode = replaceNode;
+			replaceNode = replaceNode.right;
+			if (replaceNode.right == null) {
+				tmpNode.right = null;
+			}
+		}
+		// 接管被删除节点的左右子树
+		if (replaceNode != child.left) { // 最右节点有可能直接是左节点
+			replaceNode.left = child.left;
+		}
+		replaceNode.right = child.right;
+		// 调整自身的位置
+		allNodes.remove(replaceNode);
+		allNodes.add(allNodes.indexOf(child), replaceNode);
+		// 修改被删除节点的父节点的子节点引用为自身
+		if (parent != null) {
+			if (parent.left == child) {
+				parent.left = replaceNode;
+				return;
+			}
+			if (parent.right == child) {
+				parent.right = replaceNode;
+			}
+		}
+		this.deleteNodes(key, parent, replaceNode, results);
+	}
+
+	private void deleteWithOneChild(int key, Node parent, Node child, List<Node> results) {
+		if (parent == null) { // 根节点删除
+			// 树是单向的，也不需要做处理
 			return;
 		}
-		if (node.left != null && node.left.key == key) {
-			node.left = null;
+		Node grandSon = child.left == null ? child.right : child.left;
+		if (parent.left == child) {
+			parent.left = grandSon;
+			return;
 		}
-		if (node.right != null && node.right.key == key) {
-			node.right = null;
+		if (parent.right == child) {
+			parent.right = grandSon;
 		}
-		// 先左后右，因为键值可能重复，所以左右子树都要查找
-		this.deleteNode(key, node.left);
-		this.deleteNode(key, node.right);
+		this.deleteNodes(key, parent, grandSon, results);
+	}
+
+	private void deleteNoChild(Node parent, Node child) {
+		if (parent == null) { // 根节点删除
+			// 只有一个节点的树，不做处理
+			return;
+		}
+		if (parent.left == child) {
+			parent.left = null;
+			return;
+		}
+		if (parent.right == child) {
+			parent.right = null;
+		}
 	}
 
 	List<Node> search(int key) {
