@@ -3,11 +3,13 @@ package common_test;
 class Test1 {
 
 	public static void main(String[] args) {
-		String str="12#34";
-		str=str.replaceAll("#", "%");
-		System.out.println(str);
-		str=str.replaceAll("%", "#");
-		System.out.println(str);
+		new Test1();
+	}
+
+	public Test1() {
+		short l = 10;
+		int test = l;
+		System.out.println(test);
 	}
 
 }

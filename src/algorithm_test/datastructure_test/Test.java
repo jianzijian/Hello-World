@@ -5,14 +5,10 @@ import java.util.Arrays;
 class Test {
 
 	public static void main(String[] args) {
-		CommonBinaryTreeStructure structure = new CommonBinaryTreeStructure();
-		int[] keys = new int[] { 1, 1, 2, 12, 5, 5, 74, 46 };
+		AVLTreeStructure structure = new AVLTreeStructure();
+		int[] keys = new int[] { 7, 7, 7, 7, 1, 2, 3, 6, 9, -1, 34, 67 };
 		Arrays.stream(keys).forEach(key -> structure.insert(key));
-		System.out.println(structure.loop());
-		System.out.println(structure.loopPre());
-		System.out.println(structure.loopMid());
-		structure.delete(1);
-		System.out.println(structure.search(1));
-		System.out.println(structure.loopLas());
+		System.out.println(CommonBinaryTreeStructure.loop(structure.getRoot()));
+		System.out.println(structure.search(68));
 	}
 }
